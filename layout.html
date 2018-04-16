@@ -12,7 +12,7 @@ function sendPositive(id) {
     sendResponse("positive", id)
 }
 </script>
-<h1>{{.PageTitle}}<h1>
+<h1>Enron email tagger<h1>
 <p>{{.Body}}</p>
 <button type="button" id="{{.ID}}" onclick="sendPositive(this.id)">Positive</button>
 <button type="button" id="{{.ID}}" onclick="sendNegative(this.id)">Negative</button>
