@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
-from os import listdir
-from os.path import isfile
+import re
+import os
 import MySQLdb
 
 # Open database connection
-db = MySQLdb.connect(host="enron.c9hkwqr7bv7z.us-east-1.rds.amazonaws.com",port=3306,user="enron_tagger",passwd="CompilersProject",db="enron_tags" )
+db = MySQLdb.connect(host="enron-corpora.c9hkwqr7bv7z.us-east-1.rds.amazonaws.com",port=51153,user="whitegirl",passwd="CompilersProject",db="tags" )
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
@@ -55,13 +55,14 @@ def readEmailFromDirectory(path):
     db.commit()
 
 
-myPath="/Users/toledo/Desktop/maildir/skilling-j/_sent_mail"
+myPath="/Users/toledo/Desktop/maildir"
 files=[]
 
-for f in listdir(myPath):
-    files.append(myPath+"/"+f)
+for path, dirs, files in os.walk(myPath):
+    for filename in files:
+        fullpath = os.path.join(path, filename)
+        print(fullpath)
+        readEmailFromDirectory(fullpath)
 
-for i in files:
-    readEmailFromDirectory(i)
 #close database
 db.close()
