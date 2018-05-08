@@ -7,7 +7,7 @@ cursor = db.cursor()
 
 def searchCategories():
 
-      sql = "SELECT body,tag FROM email_tags WHERE tag IS NOT NULL"
+      sql = "SELECT body,tag FROM email_tags WHERE tag IS NOT NULL order by id limit 50"
       try:
             # Execute the SQL command
             cursor.execute(sql)
@@ -21,12 +21,12 @@ def searchCategories():
 #print("Papaya de celaya")
 
 train = searchCategories()
-print(train)
+print("SQL Train done")
 
 
 def searchWithoutCategories():
 
-      sql = "SELECT body, datetime FROM email_tags WHERE tag IS NULL order by id limit 10"
+      sql = "SELECT body, datetime FROM email_tags WHERE tag IS NULL order by id"
       try:
             # Execute the SQL command
             cursor.execute(sql)
@@ -41,11 +41,13 @@ def searchWithoutCategories():
 
 
 test = searchWithoutCategories()
+print("SQL Test done")
 
 
 all_words = set(word.lower() for passage in train for word in word_tokenize(passage[0]))
 t = [({word: (word in word_tokenize(x[0])) for word in all_words}, x[1]) for x in train]
 classifier = nltk.NaiveBayesClassifier.train(t)
+print("Train done")
 classifier.show_most_informative_features()
 
 
@@ -55,8 +57,8 @@ def applyClassifier():
             test_sentence = row[0]
             test_sent_features = {word.lower(): (word in word_tokenize(test_sentence.lower())) for word in all_words}
             print(classifier.classify(test_sent_features))
-            print(date)
 
 
 applyClassifier()
+print("Papaya")
 db.close()
