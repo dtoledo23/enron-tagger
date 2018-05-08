@@ -13,6 +13,8 @@ function sendPositive(id) {
 }
 </script>
 <h1>Enron email tagger<h1>
+<p>Progress: {{.Progress}}%</p>
+<br>
 <p>{{.Body}}</p>
 <button type="button" id="{{.ID}}" onclick="sendPositive(this.id)">Positive</button>
 <button type="button" id="{{.ID}}" onclick="sendNegative(this.id)">Negative</button>

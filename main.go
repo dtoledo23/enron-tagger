@@ -10,25 +10,29 @@ import (
 
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 type Email struct {
-	ID   int
-	Body string
+	ID       int
+	Body     string
+	Progress string
 }
 
 func getRandomEmail(db *sql.DB) *Email {
 	var id int
 	var body string
+	var progress float64
 
 	err := db.QueryRow(`
-		SELECT id, Body
-		FROM enron_tags.enron
-		WHERE Tag IS NULL
-		ORDER BY RAND()
-		LIMIT 1`).Scan(&id, &body)
+		SELECT id, body, progress()
+		FROM email_tags
+		WHERE tag IS NULL
+		ORDER BY RANDOM()
+		LIMIT 1`).Scan(&id, &body, &progress)
+
+	pro := fmt.Sprintf("%f", progress*100)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -36,17 +40,17 @@ func getRandomEmail(db *sql.DB) *Email {
 	case err != nil:
 		log.Fatal(err)
 	default:
-		return &Email{id, body}
+		return &Email{id, body, pro}
 	}
 
-	return &Email{0, "No email available"}
+	return &Email{0, "No email available", ""}
 }
 
 func setTag(db *sql.DB, emailID, tag string) {
-	err := db.QueryRow(`
-		UPDATE enron_tags.enron
-		SET Tag = ?
-		WHERE ID = ?`, tag, emailID).Scan()
+	_, err := db.Exec(`
+		UPDATE email_tags
+		SET tag = $1
+		WHERE id = $2`, tag, emailID)
 
 	if err != nil {
 		log.Println(err)
@@ -55,7 +59,7 @@ func setTag(db *sql.DB, emailID, tag string) {
 }
 
 func main() {
-	db, err := sql.Open("mysql", "enron_tagger:CompilersProject@tcp(enron.c9hkwqr7bv7z.us-east-1.rds.amazonaws.com:3306)/enron_tags")
+	db, err := sql.Open("postgres", "postgres://postgres@localhost:5432/enron_corpora?sslmode=disable")
 	err = db.Ping()
 	if err != nil {
 		log.Fatal(err)
