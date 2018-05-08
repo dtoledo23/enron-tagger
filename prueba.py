@@ -13,16 +13,16 @@ documents = [(list(movie_reviews.words(fileid)), category)
             for category in movie_reviews.categories()
             for fileid in movie_reviews.fileids(category)]
 
-print(documents)
 random.shuffle(documents)
 
-#all_words_tokenized = word_tokenize(all_words)
 all_words = nltk.FreqDist(w.lower() for w in movie_reviews.words())
 word_features = list(all_words)[:3000]
 featuresets = [(find_features(rev), category) for (rev, category) in documents]
 
 training_set = featuresets[:1900]
 testing_set = featuresets[1900:]
+
+#print(training_set)
 
 classifier = nltk.NaiveBayesClassifier.train(training_set)
 
